@@ -2,6 +2,9 @@ import config
 import praw
 
 import comment_scraper as cs
+import semantic_analysis as sa
+
+from pprint import pprint
 
 
 def main():
@@ -13,13 +16,24 @@ def main():
 
     #Values can be changed to collect more/less data
     num_submissions = 1
-    num_comments = 1
+    num_comments = 3
     tree_depth = 1
 
     #Scrape comments from subreddits
-    cs.scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_depth)
+    subreddit_objects = cs.scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_depth)
+    print("\n")
 
-    
+    for i in range(len(subreddit_objects)):
+        print("Subreddit: %s" % subreddit_objects[i].name)
+
+        print("Comments:\n")
+
+        for comment in subreddit_objects[i].comment_list:
+            print(comment, "\n")
+
+
+
+
 def login():
 
     reddit_bot = praw.Reddit(username = config.username,
