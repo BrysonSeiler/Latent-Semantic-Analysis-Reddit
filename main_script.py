@@ -19,9 +19,7 @@ def main():
     #Scrape comments from subreddits
     cs.scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_depth)
 
-
-
-
+    
 def login():
 
     reddit_bot = praw.Reddit(username = config.username,
