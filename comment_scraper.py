@@ -31,7 +31,6 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
     read = 0
     counter = 0
 
-
     for subreddit_name in subreddit_names:
 
         #Get subreddit object
@@ -52,7 +51,7 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
 
                 if isinstance(comment, MoreComments):
                     continue
-                    
+
                 else:
                     #Clean the comment and tokenize
                     comment_tokens = word_tokenize(str(clean(comment.body)))
@@ -74,7 +73,7 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
 
                     filtered_comment = []
 
-        print("Successfully parsed %d comments out of %d --- %f \n" % (read, counter, 100*(read/counter)))
+        print("Successfully parsed %d comments out of %d --- %.2f percent \n" % (read, counter, 100*(read/counter)))
 
         counter = 0
         read = 0
@@ -85,10 +84,6 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
         filtered_comment_list = []
 
     return subreddit_list
-
-def get_subreddit(reddit_bot, subreddit_name):
-    subreddit_obj = reddit_bot.subreddit(subreddit_name)
-    return subreddit_obj
 
 def clean(comment):
 
@@ -105,3 +100,44 @@ def clean(comment):
     filtered_comment = " ".join(re_s.split())
 
     return filtered_comment
+
+
+def get_subreddit(reddit_bot, subreddit_name):
+    subreddit_obj = reddit_bot.subreddit(subreddit_name)
+    return subreddit_obj
+
+def get_tags(subreddit_objects):
+
+    subreddit_tag_list = []
+    numeric_tag_list = []
+
+    print("Gathering comment tags... \n")
+
+    for i in range(len(subreddit_objects)):
+        length = len(subreddit_objects[i].comment_list)
+        while length > 0:
+            subreddit_tag_list.append(subreddit_objects[i].name)
+            numeric_tag_list.append(i)
+            length -= 1
+
+    print("Successfully tagged: %d comments \n" % len(subreddit_tag_list))
+
+    return subreddit_tag_list, numeric_tag_list
+
+
+def bundle_comments(subreddit_objects):
+
+    bundled_comment_list = []
+    
+    print("Bundling up comments from all subreddits... \n")
+
+    for i in range(len(subreddit_objects)):
+        for comment in subreddit_objects[i].comment_list:
+            bundled_comment_list.append(comment)
+
+    print("Successfully bundled: %d comments \n" % len(bundled_comment_list))
+
+    return bundled_comment_list
+
+
+

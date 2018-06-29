@@ -19,22 +19,6 @@ class Subreddit_LSA:
         self.svd = svd
 
 
-def get_comments(subreddit_objects):
-
-    comment_list = []
-    tag_list = []
-    numeric_tag_list = []
-
-    for i in range(len(subreddit_objects)):
-        for comment in subreddit_objects[i].comment_list:
-            comment_list.append(comment)
-            tag_list.append(subreddit_objects[i].name)
-            numeric_tag_list.append(i)
-
-    print("Total number of comments: %d \n" % len(comment_list))
-
-    return comment_list, tag_list, numeric_tag_list
-
 def run_count_vectorizer(num_comments, comments):
 
     vectorizer = CountVectorizer(stop_words=None)
@@ -50,11 +34,16 @@ def run_count_vectorizer(num_comments, comments):
 
 def run_tfidf_vectorizer(num_comments, feature_names, frequency_df):
 
-    transformer = TfidfTransformer()
-    tfidf_matrix = transformer.fit_transform(frequency_df)
+
+    vectorizer = TfidfVectorizer(max_df=0.5, stop_words='english',
+                                 norm=None, binary=False, use_idf=True)
+    tfidf_matrix = vectorizer.fit_transform(frequency_df)
+    feature_names = vectorizer.get_feature_names()
     tfidf_df = pd.DataFrame(tfidf_matrix.toarray(), columns=feature_names)
 
-    tfidf_df = get_rownames(num_comments, tfidf_df)
+    print("Tfidf matrix shape: %d by %d \n" % (tfidf_df.shape[0], tfidf_df.shape[1]))
+
+    tfidf_df = get_rownames(tfidf_df.shape[0], tfidf_df)
 
     print("Tfidf matrix shape: %d by %d \n" % (tfidf_df.shape[0], tfidf_df.shape[1]))
 
@@ -82,6 +71,8 @@ def run_dimensionality_reduction(tfidf_df, tags, numeric):
     reduced_df.insert(loc=0, column='subreddit', value=tags)
     reduced_df.insert(loc=0, column='numeric', value=numeric)
 
+    reduced_df.to_csv("lsa_matrix.csv", sep='\t')
+
     return reduced_df
 
 def get_rownames(num_comments, dataframe):
@@ -101,9 +92,9 @@ def run_lsa(num_comments, comments, tags, numeric):
     frequency_df, feature_names = run_count_vectorizer(num_comments, comments)
 
     print("Building tf-idf matrix...")
-    tfidf_df = run_tfidf_vectorizer(num_comments, feature_names, frequency_df)
+    #tfidf_df = run_tfidf_vectorizer(num_comments, feature_names, frequency_df)
 
     print("Reducing dimension of data...")
-    reduced_df = run_dimensionality_reduction(tfidf_df, tags, numeric)
+    #reduced_df = run_dimensionality_reduction(tfidf_df, tags, numeric)
 
-    return reduced_df
+    return "test"
