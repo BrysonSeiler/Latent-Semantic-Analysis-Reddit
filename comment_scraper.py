@@ -138,6 +138,3 @@ def bundle_comments(subreddit_objects):
     print("Successfully bundled: %d comments \n" % len(bundled_comment_list))
 
     return bundled_comment_list
-
-
-

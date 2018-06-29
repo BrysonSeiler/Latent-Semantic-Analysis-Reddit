@@ -13,11 +13,11 @@ def main():
     subreddit_names = list(str(input("Enter the names of the subreddits (separated by commas) that you would like to analyze: ")).split(","))
 
     #Values can be changed to collect more/less data
-    num_submissions = 4
+    num_submissions = 1
     num_comments = 5
     tree_depth = 1
 
-    #Scrape comments from subreddits chosen
+    #Scrape comments from chosen subreddits
     subreddit_objects = cs.scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_depth)
     
     #Bundle together all comments from all subreddits
@@ -26,9 +26,8 @@ def main():
     #Tag each comment based off of which subreddit it came from
     subreddit_tags, numeric_tags = cs.get_tags(subreddit_objects)
 
-    #sa.run_lsa(len(comments), comments, tags, numeric)
+    reduced_df = sa.run_lsa(len(comments), comments, subreddit_tags, numeric_tags)
     
-
 
 def login():
 
