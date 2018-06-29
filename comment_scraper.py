@@ -3,12 +3,6 @@ from nltk.corpus import stopwords
 
 import re
 
-#Subreddit object:
-    #subreddit name
-    #number of submissions gathered
-    #submission titles
-    #number of comments gathered
-    #comments
 
 class Subreddit:
 
@@ -46,7 +40,6 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
             #Add submission title to list of submissions
             submission_list.append(submission.title)
 
-            print(len(submission.comments[:num_comments]))
             for comment in submission.comments[:num_comments]:
 
                 #Clean the comment and tokenize
@@ -65,7 +58,7 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
 
                     filtered_comment_list.append(' '.join(filtered_comment))
 
-                    #print("Filtered comment: %s \n" % str(' '.join(filtered_comment)))
+                    print("Filtered comment: %s \n" % str(' '.join(filtered_comment)))
 
                     filtered_comment = []
 

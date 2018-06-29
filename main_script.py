@@ -4,9 +4,6 @@ import praw
 import comment_scraper as cs
 import semantic_analysis as sa
 
-from pprint import pprint
-
-
 def main():
 
     #Bot login
@@ -16,20 +13,17 @@ def main():
 
     #Values can be changed to collect more/less data
     num_submissions = 1
-    num_comments = 3
+    num_comments = 1
     tree_depth = 1
 
     #Scrape comments from subreddits
     subreddit_objects = cs.scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_depth)
-    print("\n")
+    
+    comments = sa.get_comments(subreddit_objects)
 
-    for i in range(len(subreddit_objects)):
-        print("Subreddit: %s" % subreddit_objects[i].name)
+    sa.run_lsa(len(comments), comments)
 
-        print("Comments:\n")
-
-        for comment in subreddit_objects[i].comment_list:
-            print(comment, "\n")
+    
 
 
 
