@@ -12,20 +12,17 @@ def main():
     subreddit_names = list(str(input("Enter the names of the subreddits (separated by commas) that you would like to analyze: ")).split(","))
 
     #Values can be changed to collect more/less data
-    num_submissions = 1
-    num_comments = 1
+    num_submissions = 5
+    num_comments = 5
     tree_depth = 1
 
     #Scrape comments from subreddits
     subreddit_objects = cs.scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_depth)
     
-    comments = sa.get_comments(subreddit_objects)
+    comments, tags, numeric = sa.get_comments(subreddit_objects)
 
-    sa.run_lsa(len(comments), comments)
-
+    sa.run_lsa(len(comments), comments, tags, numeric)
     
-
-
 
 
 def login():

@@ -1,6 +1,8 @@
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
+from praw.models import MoreComments
+
 import re
 
 
@@ -26,6 +28,10 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
 
     subreddit_list = []
 
+    read = 0
+    counter = 0
+
+
     for subreddit_name in subreddit_names:
 
         #Get subreddit object
@@ -35,22 +41,28 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
 
         #Gather top level comments from x number of submissions inside of subreddit
         for submission in subreddit.top(limit = num_submissions):
-            print("Submission title: %s (contains %d comments) \n" % (submission.title, len(submission.comments)))
+            #print("Submission title: %s (contains %d comments) \n" % (submission.title, len(submission.comments)))
 
             #Add submission title to list of submissions
             submission_list.append(submission.title)
 
             for comment in submission.comments[:num_comments]:
 
-                #Clean the comment and tokenize
-                comment_tokens = word_tokenize(str(clean(comment.body)))
+                counter += 1
+
+                if isinstance(comment, MoreComments):
+                    continue
+                    
+                else:
+                    #Clean the comment and tokenize
+                    comment_tokens = word_tokenize(str(clean(comment.body)))
 
                 #Skip empty comments
                 if(len(comment_tokens) == 0):
-                    print("Skipping over empty comment...")
                     continue
 
                 else:
+                    read += 1
                     #Remove stopwords from tokenized comment
                     for word in comment_tokens:
                         if word not in stop_words:
@@ -58,11 +70,14 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
 
                     filtered_comment_list.append(' '.join(filtered_comment))
 
-                    print("Filtered comment: %s \n" % str(' '.join(filtered_comment)))
+                    #print("Filtered comment: %s \n" % str(' '.join(filtered_comment)))
 
                     filtered_comment = []
 
-        print("Successfully parsed %d comments" % len(filtered_comment_list))
+        print("Successfully parsed %d comments out of %d --- %f \n" % (read, counter, 100*(read/counter)))
+
+        counter = 0
+        read = 0
 
         #Construct list of subreddit objects
         subreddit_list.append(Subreddit(subreddit_name, num_submissions, submission_list, num_comments, filtered_comment_list, len(filtered_comment_list)))
