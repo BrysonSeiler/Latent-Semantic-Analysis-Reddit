@@ -7,7 +7,6 @@ from sklearn.feature_extraction.text import (CountVectorizer, TfidfTransformer,
 
 from sklearn.decomposition import TruncatedSVD
 from sklearn.preprocessing import Normalizer
-from sklearn.pipeline import Pipeline, make_pipeline
 
 
 class Subreddit_LSA:
@@ -51,15 +50,14 @@ def run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_com
     "Clustering text documents using k-means"
     '''
 
-    svd = TruncatedSVD(n_components=100, n_iter=10, random_state=13)
-    normalizer = Normalizer(copy=False)
-    lsa = make_pipeline(svd, normalizer)
-
-    reduced_matrix = lsa.fit_transform(tfidf_df)
+    svd = TruncatedSVD(n_components=100, n_iter=10, algorithm="randomized")
+    reduced_matrix = svd.fit_transform(tfidf_df)
+    reduced_matrix = Normalizer(copy=False).fit_transform(reduced_matrix)
 
     print("Reduced matrix shape: %d by %d \n" % (reduced_matrix.shape[0], reduced_matrix.shape[1]))
-    print("Explained variance: %s \n" % str(svd.explained_variance_[:10]).strip("[]"))
+    print("Explained variance of first 10 components: %s \n" % str(svd.explained_variance_ratio_[:10]).strip("[]"))
     print("Singular values: %s \n" % str(svd.singular_values_[:10]).strip("[]"))
+    print("Percent variance explained by all components: %.3f" % svd.explained_variance_ratio_.sum())
 
     reduced_df = pd.DataFrame(reduced_matrix)
 
@@ -83,13 +81,15 @@ def get_rownames(num_comments, dataframe):
 
 def run_lsa(num_comments, comments, subreddit_tags, numeric_tags):
 
+    print("Learning vocabulary...\n")
+
     print("Building frequency matrix...")
     frequency_df, feature_names = run_count_vectorizer(num_comments, comments)
 
     print("Building tf-idf matrix...")
-    tfidf_df = run_tfidf_vectorizer(num_comments, feature_names, frequency_df)
+    tfdif_df = run_tfidf_vectorizer(num_comments, feature_names, frequency_df)
 
     print("Reducing dimension of data...")
-    reduced_df = run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_comments)
+    reduced_df = run_dimensionality_reduction(tfdif_df, subreddit_tags, numeric_tags, num_comments)
 
     return reduced_df

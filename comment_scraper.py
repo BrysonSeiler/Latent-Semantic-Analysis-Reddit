@@ -73,7 +73,7 @@ def scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_dept
 
                     filtered_comment = []
 
-        print("Successfully parsed %d comments out of %d --- %.2f percent \n" % (read, counter, 100*(read/counter)))
+        print("Successfully parsed %d comments out of %d --- %.2f \n" % (read, counter, 100*(read/counter)))
 
         counter = 0
         read = 0

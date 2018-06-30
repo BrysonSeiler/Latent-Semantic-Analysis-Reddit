@@ -13,9 +13,9 @@ def main():
     subreddit_names = list(str(input("Enter the names of the subreddits (separated by commas) that you would like to analyze: ")).split(","))
 
     #Values can be changed to collect more/less data
-    num_submissions = 1
-    num_comments = 5
-    tree_depth = 1
+    num_submissions = 50
+    num_comments = 30
+    tree_depth = 2
 
     #Scrape comments from chosen subreddits
     subreddit_objects = cs.scrape(reddit_bot, subreddit_names, num_submissions, num_comments, tree_depth)
@@ -26,10 +26,13 @@ def main():
     #Tag each comment based off of which subreddit it came from
     subreddit_tags, numeric_tags = cs.get_tags(subreddit_objects)
 
-    reduced_df = sa.run_lsa(len(comments), comments, subreddit_tags, numeric_tags)
+    #Learn comment vocabulary
+    sa.run_lsa(len(comments), comments, subreddit_tags, numeric_tags)
     
 
 def login():
+
+    print("Logging in... \n")
 
     reddit_bot = praw.Reddit(username = config.username,
                         password = config.password,
