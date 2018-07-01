@@ -12,20 +12,12 @@ def main():
     #Get user input for which subreddits to analyze
     subreddit_names = list(str(input("Enter the names of the subreddits (separated by commas) that you would like to analyze: ")).split(","))
 
-
-    print("Analyzing submission titles...\n")
-
     #Values can be changed to collect more/less data
-    num_submissions = 1500
+    #Praw has a limit of 1000
+    num_submissions = 500
 
     #Scrape submission titles from chosen subreddits
     subreddit_objects = ss.scrape(reddit_bot, subreddit_names, num_submissions)
-
-    for obj in subreddit_objects:
-        print("Subreddit name: ", obj.name, "\n")
-        print("Number of submissions: ", obj.num_submissions, "\n")
-        #print("Submissions: ", obj.submission_list, "\n")
-        print("Number of submissions read: ", obj.num_submissions_read, "\n \n")
 
     #Bundle together all submission titles from all subreddits
     submissions = ss.bundle_submissions(subreddit_objects)

@@ -54,7 +54,11 @@ def run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_str
     reduced_matrix = svd.fit_transform(tfidf_df)
     reduced_matrix = Normalizer(copy=False).fit_transform(reduced_matrix)
 
-    print("Reduced matrix shape: %d by %d \n" % (reduced_matrix.shape[0], reduced_matrix.shape[1]))
+    print("Successfully reduced data to %d submissions explained by %d features" % (reduced_matrix.shape))
+    print("Reduced matrix shape: %d by %d \n" % reduced_matrix.shape)
+
+    print("#-------------------------------------------------------------------------------#\n")
+
     print("Explained variance of first 10 components: %s \n" % str(svd.explained_variance_ratio_[:10]).strip("[]"))
     print("Singular values: %s \n" % str(svd.singular_values_[:10]).strip("[]"))
     print("Percent variance explained by all components: %.3f" % svd.explained_variance_ratio_.sum())
@@ -81,6 +85,7 @@ def get_rownames(num_strings, dataframe):
 
 def run_lsa(num_strings, text, subreddit_tags, numeric_tags):
 
+    print("#-------------------------------------------------------------------------------#")
     print("Learning vocabulary...\n")
 
     print("Building frequency matrix...")

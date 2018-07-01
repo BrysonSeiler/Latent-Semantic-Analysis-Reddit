@@ -24,35 +24,38 @@ def scrape(reddit_bot, subreddit_names, num_submissions):
 
     subreddit_list = []
 
-    read = 0
-    counter = 0
+    comment_read = 0
+    skipped = 0
+    total = 0
 
     for subreddit_name in subreddit_names:
 
         #Get subreddit object
         subreddit = get_subreddit(reddit_bot, subreddit_name)
 
-        print("Gathering top %d submissions from %s..." % (num_submissions, subreddit_name))
+        print("Gathering top %d submission titles from %s..." % (num_submissions, subreddit_name))
 
         #Gather top level comments from x number of submissions inside of subreddit
         for submission in subreddit.top(limit = num_submissions):
-
-            counter += 1
             
             #print("Submission title: %s (contains %d comments) \n" % (submission.title, len(submission.comments)))
 
             #Add submission title to list of submissions
-            submission_list.append(submission.title)
+            submission_list.append(submission.title) #Do I really need this
 
             #Clean the submission title and tokenize
             submission_tokens = word_tokenize(str(clean(submission.title)))
 
             #Skip empty submissions
             if(len(submission_tokens) == 0):
+                skipped +=1
                 continue
 
             else:
-                read += 1
+
+                comment_read += 1
+                total +=1
+
                 #Remove stopwords from tokenized comment
                 for word in submission_tokens:
                     if word not in stop_words:
@@ -64,15 +67,19 @@ def scrape(reddit_bot, subreddit_names, num_submissions):
 
                 filtered_submission = []
 
-        print("Successfully parsed %d submissions out of %d --- %.2f \n" % (read, counter, 100*(read/counter)))
+        print("Successfully parsed %d submissions out of %d --- %.2f%% (skipped %d)\n" % (comment_read, num_submissions, 100*(comment_read/num_submissions), skipped))
 
-        counter = 0
-        read = 0
+        comment_read = 0
+        skipped = 0
 
         #Construct list of subreddit objects
         subreddit_list.append(Subreddit(subreddit_name, num_submissions, filtered_submission_list,  len(filtered_submission_list)))
 
         filtered_submission_list = []
+
+    print("#-------------------------------------------------------------------------------#")
+    print("Successfully parsed a total of %d submission titles over %d subreddits --- %.2f%%" % (total, len(subreddit_names), 100*(total/(len(subreddit_names)*num_submissions))))
+    print("#-------------------------------------------------------------------------------#\n")
 
     return subreddit_list
 
@@ -102,8 +109,6 @@ def get_tags(subreddit_objects):
     subreddit_tag_list = []
     numeric_tag_list = []
 
-    print("Gathering submission tags... \n")
-
     for i in range(len(subreddit_objects)):
         length = len(subreddit_objects[i].submission_list)
         while length > 0:
@@ -126,6 +131,6 @@ def bundle_submissions(subreddit_objects):
         for submission in subreddit_objects[i].submission_list:
             bundled_submission_list.append(submission)
 
-    print("Successfully bundled: %d submissions \n" % len(bundled_submission_list))
+    print("Successfully bundled: %d submissions" % len(bundled_submission_list))
 
     return bundled_submission_list
