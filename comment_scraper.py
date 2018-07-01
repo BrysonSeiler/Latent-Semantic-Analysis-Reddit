@@ -129,7 +129,7 @@ def bundle_comments(subreddit_objects):
 
     bundled_comment_list = []
     
-    print("Bundling up comments from all subreddits... \n")
+    print("Bundling up comments... \n")
 
     for i in range(len(subreddit_objects)):
         for comment in subreddit_objects[i].comment_list:

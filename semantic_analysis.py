@@ -18,32 +18,32 @@ class Subreddit_LSA:
         self.svd = svd
 
 
-def run_count_vectorizer(num_comments, comments):
+def run_count_vectorizer(num_strings, text):
 
-    vectorizer = CountVectorizer(stop_words='english')
-    frequency_matrix = vectorizer.fit_transform(comments)
-    feature_names = vectorizer.get_feature_names()
+    count_vectorizer = CountVectorizer(stop_words='english')
+    frequency_matrix = count_vectorizer.fit_transform(text)
+    feature_names = count_vectorizer.get_feature_names()
     frequency_df = pd.DataFrame(frequency_matrix.toarray(), columns=feature_names)
 
-    frequency_df = get_rownames(num_comments, frequency_df)
+    frequency_df = get_rownames(num_strings, frequency_df)
 
-    print("Frequency matrix shape: %d by %d \n" % (frequency_df.shape[0], frequency_df.shape[1]))
+    print("Frequency matrix shape: %d by %d \n" % frequency_df.shape)
 
     return frequency_df, feature_names
 
-def run_tfidf_vectorizer(num_comments, feature_names, frequency_df):
+def run_tfidf_vectorizer(num_strings, feature_names, frequency_df):
 
     tfidf_transformer = TfidfTransformer(use_idf=True, smooth_idf=True)
     tfidf_matrix = tfidf_transformer.fit_transform(frequency_df)
     tfidf_df = pd.DataFrame(tfidf_matrix.toarray(), columns=feature_names)
 
-    tfidf_df = get_rownames(num_comments, tfidf_df)
+    tfidf_df = get_rownames(num_strings, tfidf_df)
 
     print("Tfidf matrix shape: %d by %d \n" % (tfidf_df.shape[0], tfidf_df.shape[1]))
 
     return tfidf_df
 
-def run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_comments):
+def run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_strings):
 
     '''
     This method was influenced by sklearn's 
@@ -61,35 +61,35 @@ def run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_com
 
     reduced_df = pd.DataFrame(reduced_matrix)
 
-    reduced_df = get_rownames(num_comments, reduced_df)
+    reduced_df = get_rownames(num_strings, reduced_df)
 
     reduced_df.insert(loc=0, column='subreddit', value=subreddit_tags)
     reduced_df.insert(loc=0, column='numeric', value=numeric_tags)
 
     return reduced_df
 
-def get_rownames(num_comments, dataframe):
+def get_rownames(num_strings, dataframe):
 
     index = []
 
-    for i in range(num_comments):
+    for i in range(num_strings):
         index.append("Comment %s" % str(i+1))
 
     dataframe.index = index
 
     return dataframe
 
-def run_lsa(num_comments, comments, subreddit_tags, numeric_tags):
+def run_lsa(num_strings, text, subreddit_tags, numeric_tags):
 
     print("Learning vocabulary...\n")
 
     print("Building frequency matrix...")
-    frequency_df, feature_names = run_count_vectorizer(num_comments, comments)
+    frequency_df, feature_names = run_count_vectorizer(num_strings, text)
 
     print("Building tf-idf matrix...")
-    tfdif_df = run_tfidf_vectorizer(num_comments, feature_names, frequency_df)
+    tfdif_df = run_tfidf_vectorizer(num_strings, feature_names, frequency_df)
 
     print("Reducing dimension of data...")
-    reduced_df = run_dimensionality_reduction(tfdif_df, subreddit_tags, numeric_tags, num_comments)
+    reduced_df = run_dimensionality_reduction(tfdif_df, subreddit_tags, numeric_tags, num_strings)
 
     return reduced_df
