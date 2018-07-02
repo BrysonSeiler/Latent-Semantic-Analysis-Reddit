@@ -12,9 +12,8 @@ def main():
     #Get user input for which subreddits to analyze
     subreddit_names = list(str(input("Enter the names of the subreddits (separated by commas) that you would like to analyze: ")).split(","))
 
-    #Values can be changed to collect more/less data
-    #Praw has a limit of 1000
-    num_submissions = 500
+    #Values can be changed to collect more/less data (Praw has a limit of 1000)
+    num_submissions = 1000
 
     #Scrape submission titles from chosen subreddits
     subreddit_objects = ss.scrape(reddit_bot, subreddit_names, num_submissions)
@@ -26,7 +25,6 @@ def main():
     subreddit_tags, numeric_tags = ss.get_tags(subreddit_objects)
 
     #Learn comment vocabulary
-    #num_strings, text, subreddit_tags, numeric_tags
     sa.run_lsa(len(submissions), submissions, subreddit_tags, numeric_tags)
 
 

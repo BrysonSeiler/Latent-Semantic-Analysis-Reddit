@@ -77,7 +77,7 @@ def get_rownames(num_strings, dataframe):
     index = []
 
     for i in range(num_strings):
-        index.append("Comment %s" % str(i+1))
+        index.append("Submission %s" % str(i+1))
 
     dataframe.index = index
 
