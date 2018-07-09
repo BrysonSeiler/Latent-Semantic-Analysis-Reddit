@@ -1,6 +1,8 @@
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
+from sklearn.feature_extraction import text
+
 import re
 
 
@@ -15,8 +17,8 @@ class Subreddit:
 
 def scrape(reddit_bot, subreddit_names, num_submissions):
 
-    #Set stop words to english
-    stop_words = set(stopwords.words('english'))
+    #Set stop words to english (Uses both sklearn and nltk stopwords)
+    stop_words = text.ENGLISH_STOP_WORDS.union(set(stopwords.words('english')))
 
     submission_list = []
     filtered_submission = []
@@ -61,9 +63,13 @@ def scrape(reddit_bot, subreddit_names, num_submissions):
                     if word not in stop_words:
                         filtered_submission.append(word)
 
-                filtered_submission_list.append(' '.join(filtered_submission))
+                if (len(filtered_submission) == 0):
+                    continue
 
-                #print("Filtered comment: %s \n" % str(' '.join(filtered_submission)))
+                else:
+                    filtered_submission_list.append(' '.join(filtered_submission))
+
+                #print("Filtered submission: %s \n" % str(' '.join(filtered_submission)))
 
                 filtered_submission = []
 
@@ -102,7 +108,6 @@ def clean(submission):
 def get_subreddit(reddit_bot, subreddit_name):
     subreddit_obj = reddit_bot.subreddit(subreddit_name)
     return subreddit_obj
-
 
 def get_tags(subreddit_objects):
 

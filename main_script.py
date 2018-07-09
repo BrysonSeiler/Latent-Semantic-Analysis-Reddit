@@ -3,6 +3,7 @@ import praw
 
 import submission_scraper as ss
 import semantic_analysis as sa
+import k_means as km
 
 def main():
 
@@ -25,7 +26,11 @@ def main():
     subreddit_tags, numeric_tags = ss.get_tags(subreddit_objects)
 
     #Learn comment vocabulary
-    sa.run_lsa(len(submissions), submissions, subreddit_tags, numeric_tags)
+    reduced_matrix, labeled_reduced_matrix = sa.run_lsa(len(submissions), submissions, subreddit_tags, numeric_tags)
+
+    #Cluster data with k-means
+    km.cluster(len(subreddit_names), reduced_matrix, numeric_tags)
+
 
 
 def login():

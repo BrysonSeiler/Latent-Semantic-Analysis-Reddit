@@ -20,7 +20,7 @@ class Subreddit_LSA:
 
 def run_count_vectorizer(num_strings, text):
 
-    count_vectorizer = CountVectorizer(stop_words='english')
+    count_vectorizer = CountVectorizer(max_df=0.25, max_features=500)
     frequency_matrix = count_vectorizer.fit_transform(text)
     feature_names = count_vectorizer.get_feature_names()
     frequency_df = pd.DataFrame(frequency_matrix.toarray(), columns=feature_names)
@@ -50,7 +50,7 @@ def run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_str
     "Clustering text documents using k-means"
     '''
 
-    svd = TruncatedSVD(n_components=100, n_iter=10, algorithm="randomized")
+    svd = TruncatedSVD(n_components=300, n_iter=10, algorithm="randomized")
     reduced_matrix = svd.fit_transform(tfidf_df)
     reduced_matrix = Normalizer(copy=False).fit_transform(reduced_matrix)
 
@@ -59,18 +59,20 @@ def run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_str
 
     print("#-------------------------------------------------------------------------------#\n")
 
-    print("Explained variance of first 10 components: %s \n" % str(svd.explained_variance_ratio_[:10]).strip("[]"))
-    print("Singular values: %s \n" % str(svd.singular_values_[:10]).strip("[]"))
-    print("Percent variance explained by all components: %.3f" % svd.explained_variance_ratio_.sum())
+    print("Explained variance of first 5 components: %s \n" % str(svd.explained_variance_ratio_[:5]).strip("[]"))
+    print("Singular values: %s \n" % str(svd.singular_values_[:5]).strip("[]"))
+    print("Percent variance explained by all components: %.3f\n" % svd.explained_variance_ratio_.sum())
+
+    print("#-------------------------------------------------------------------------------#\n")
 
     reduced_df = pd.DataFrame(reduced_matrix)
 
     reduced_df = get_rownames(num_strings, reduced_df)
 
-    reduced_df.insert(loc=0, column='subreddit', value=subreddit_tags)
-    reduced_df.insert(loc=0, column='numeric', value=numeric_tags)
+    reduced_df.insert(loc=0, column='Subreddit', value=subreddit_tags)
+    reduced_df.insert(loc=0, column='Numeric', value=numeric_tags)
 
-    return reduced_df
+    return reduced_matrix, reduced_df
 
 def get_rownames(num_strings, dataframe):
 
@@ -92,9 +94,11 @@ def run_lsa(num_strings, text, subreddit_tags, numeric_tags):
     frequency_df, feature_names = run_count_vectorizer(num_strings, text)
 
     print("Building tf-idf matrix...")
-    tfdif_df = run_tfidf_vectorizer(num_strings, feature_names, frequency_df)
+    tfidf_df = run_tfidf_vectorizer(num_strings, feature_names, frequency_df)
 
     print("Reducing dimension of data...")
-    reduced_df = run_dimensionality_reduction(tfdif_df, subreddit_tags, numeric_tags, num_strings)
+    reduced_matrix, reduced_df = run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_strings)
 
-    return reduced_df
+    reduced_matrix = pd.DataFrame(reduced_matrix)
+
+    return reduced_matrix, reduced_df
