@@ -1,21 +1,18 @@
 import numpy as np
 import pandas as pd
-from pprint import pprint
-
+from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import (CountVectorizer, TfidfTransformer,
                                              TfidfVectorizer)
-
-from sklearn.decomposition import TruncatedSVD
 from sklearn.preprocessing import Normalizer
 
 
 class Subreddit_LSA:
 
-    def __init__(self, frequency_df, tfidf_df, lsa_df, svd):
+    def __init__(self, frequency_df, tfidf_df, lsa_df, lsa_matrix):
         self.frequency_df = frequency_df
         self.tfidf_df = tfidf_df
         self.lsa_df = lsa_df
-        self.svd = svd
+        self.lsa_matrix = lsa_matrix
 
 
 def run_count_vectorizer(num_strings, text):
@@ -63,14 +60,14 @@ def run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_str
     print("Singular values: %s \n" % str(svd.singular_values_[:5]).strip("[]"))
     print("Percent variance explained by all components: %.3f\n" % svd.explained_variance_ratio_.sum())
 
-    print("#-------------------------------------------------------------------------------#\n")
+    print("#-------------------------------------------------------------------------------#")
 
     reduced_df = pd.DataFrame(reduced_matrix)
 
     reduced_df = get_rownames(num_strings, reduced_df)
 
     reduced_df.insert(loc=0, column='Subreddit', value=subreddit_tags)
-    reduced_df.insert(loc=0, column='Numeric', value=numeric_tags)
+    reduced_df.insert(loc=0, column='True_Labels', value=numeric_tags)
 
     return reduced_matrix, reduced_df
 
@@ -97,8 +94,8 @@ def run_lsa(num_strings, text, subreddit_tags, numeric_tags):
     tfidf_df = run_tfidf_vectorizer(num_strings, feature_names, frequency_df)
 
     print("Reducing dimension of data...")
-    reduced_matrix, reduced_df = run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_strings)
+    lsa_matrix, lsa_df = run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_strings)
 
-    reduced_matrix = pd.DataFrame(reduced_matrix)
+    bundled_data = Subreddit_LSA(frequency_df, tfidf_df, lsa_df, lsa_matrix)
 
-    return reduced_matrix, reduced_df
+    return bundled_data
