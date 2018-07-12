@@ -9,7 +9,7 @@ def euclidean_cluster(num_clusters, matrix):
 
     print("Running k-means using euclidean distance...\n")
 
-    k_means = KMeans(n_clusters=num_clusters, init='k-means++')
+    k_means = KMeans(n_clusters=num_clusters, init='k-means++', n_init=100)
     clusters = k_means.fit_predict(matrix)
 
     print("Successfully found %d clusters in %d dimensions \n" % k_means.cluster_centers_.shape)

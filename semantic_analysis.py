@@ -5,6 +5,8 @@ from sklearn.feature_extraction.text import (CountVectorizer, TfidfTransformer,
                                              TfidfVectorizer)
 from sklearn.preprocessing import Normalizer
 
+from pprint import pprint
+import statistics as stat
 
 class Subreddit_LSA:
 
@@ -82,19 +84,23 @@ def get_rownames(num_strings, dataframe):
 
     return dataframe
 
-def run_lsa(num_strings, text, subreddit_tags, numeric_tags):
+def run_lsa(num_strings, text, subreddit_tags, numeric_tags, subreddit_names):
 
     print("#-------------------------------------------------------------------------------#")
     print("Learning vocabulary...\n")
 
     print("Building frequency matrix...")
     frequency_df, feature_names = run_count_vectorizer(num_strings, text)
+    frequency_df.insert(loc=0, column='Subreddit', value=subreddit_tags)
+    stat.get_word_frequency(frequency_df, subreddit_names, 10)
 
     print("Building tf-idf matrix...")
-    tfidf_df = run_tfidf_vectorizer(num_strings, feature_names, frequency_df)
+    tfidf_df = run_tfidf_vectorizer(num_strings, feature_names, frequency_df.drop('Subreddit', axis=1))
+    tfidf_df.insert(loc=0, column='Subreddit', value=subreddit_tags)
+    stat.get_tfidf_score(tfidf_df, subreddit_names, 10)
 
     print("Reducing dimension of data...")
-    lsa_matrix, lsa_df = run_dimensionality_reduction(tfidf_df, subreddit_tags, numeric_tags, num_strings)
+    lsa_matrix, lsa_df = run_dimensionality_reduction(tfidf_df.drop('Subreddit', axis=1), subreddit_tags, numeric_tags, num_strings)
 
     bundled_data = Subreddit_LSA(frequency_df, tfidf_df, lsa_df, lsa_matrix)
 

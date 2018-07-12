@@ -8,19 +8,18 @@ import re
 
 class Subreddit:
 
-    def __init__(self, name, num_submissions, submission_list, num_submissions_read):
+    def __init__(self, name, num_submissions, filtered_submission_list, num_submissions_read):
         self.name = name
         self.num_submissions = num_submissions
-        self.submission_list = submission_list
+        self.filtered_submission_list = filtered_submission_list
         self.num_submissions_read = num_submissions_read
 
 
 def scrape(reddit_bot, subreddit_names, num_submissions):
 
     #Set stop words to english (Uses both sklearn and nltk stopwords)
-    stop_words = text.ENGLISH_STOP_WORDS.union(set(stopwords.words('english')))
+    stop_words = set(list(text.ENGLISH_STOP_WORDS) +  list(stopwords.words("english")))
 
-    submission_list = []
     filtered_submission = []
     filtered_submission_list = []
 
@@ -41,9 +40,6 @@ def scrape(reddit_bot, subreddit_names, num_submissions):
         for submission in subreddit.top(limit = num_submissions):
             
             #print("Submission title: %s (contains %d comments) \n" % (submission.title, len(submission.comments)))
-
-            #Add submission title to list of submissions
-            submission_list.append(submission.title) #Do I really need this
 
             #Clean the submission title and tokenize
             submission_tokens = word_tokenize(str(clean(submission.title)))
@@ -73,10 +69,12 @@ def scrape(reddit_bot, subreddit_names, num_submissions):
 
                 filtered_submission = []
 
-        print("Successfully parsed %d submissions out of %d --- %.2f%% (skipped %d)\n" % (comment_read, num_submissions, 100*(comment_read/num_submissions), skipped))
+        print("Successfully parsed %d submissions out of %d --- %.2f%% \n" % (comment_read, num_submissions, 100*(comment_read/num_submissions)))
 
         comment_read = 0
         skipped = 0
+
+        #print(filtered_submission_list)
 
         #Construct list of subreddit objects
         subreddit_list.append(Subreddit(subreddit_name, num_submissions, filtered_submission_list,  len(filtered_submission_list)))
@@ -100,8 +98,11 @@ def clean(submission):
     #Remove special characters
     re_s = re.sub(r"[^A-Za-z \—]+", " ", re_l)
 
+    #Remove capitalization
+    re_c = re.sub('[A-Z]+', lambda m: m.group(0).lower(), re_s)
+
     #Remove excess white space
-    filtered_submission = " ".join(re_s.split())
+    filtered_submission = " ".join(re_c.split())
 
     return filtered_submission
 
@@ -115,7 +116,7 @@ def get_tags(subreddit_objects):
     numeric_tag_list = []
 
     for i in range(len(subreddit_objects)):
-        length = len(subreddit_objects[i].submission_list)
+        length = len(subreddit_objects[i].filtered_submission_list)
         while length > 0:
             subreddit_tag_list.append(subreddit_objects[i].name)
             numeric_tag_list.append(i)
@@ -133,7 +134,7 @@ def bundle_submissions(subreddit_objects):
     print("Bundling up submissions... \n")
 
     for i in range(len(subreddit_objects)):
-        for submission in subreddit_objects[i].submission_list:
+        for submission in subreddit_objects[i].filtered_submission_list:
             bundled_submission_list.append(submission)
 
     print("Successfully bundled: %d submissions" % len(bundled_submission_list))

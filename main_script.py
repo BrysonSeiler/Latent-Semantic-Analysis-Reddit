@@ -15,7 +15,7 @@ def main():
     subreddit_names = list(str(input("Enter the names of the subreddits (separated by commas) that you would like to analyze: ")).split(","))
 
     #Values can be changed to collect more/less data (Praw has a limit of 1000)
-    num_submissions = 100
+    num_submissions = 1000
 
     #Scrape submission titles from chosen subreddits
     subreddit_objects = ss.scrape(reddit_bot, subreddit_names, num_submissions)
@@ -27,7 +27,7 @@ def main():
     subreddit_tags, numeric_tags = ss.get_tags(subreddit_objects)
 
     #Learn vocabulary
-    data = sa.run_lsa(len(submissions), submissions, subreddit_tags, numeric_tags)
+    data = sa.run_lsa(len(submissions), submissions, subreddit_tags, numeric_tags, subreddit_names)
 
     #Cluster data with k-means
     km.run_kmeans(len(subreddit_names), data.lsa_matrix, numeric_tags)
